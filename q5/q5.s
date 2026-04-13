@@ -3,7 +3,7 @@ filename:   .string "input.txt"
 mode:       .string "r"
 yes_str:    .string "Yes\n"
 no_str:     .string "No\n"
-
+error_str:  .string "Error in opening\n"
 .section .text
 .global main
 
@@ -21,7 +21,8 @@ main:
     la a1, mode
     call fopen
     mv s0, a0        # s0 = FILE pointer
-    
+    beqz s0, error   # if NULL , then jump to the end
+
     # fseek(fp, 0, SEEK_END)  -- SEEK_END = 2
     mv a0, s0
     li a1, 0
@@ -72,12 +73,13 @@ loop:
 
 print_yes:
     la a0, yes_str
-    call puts
+    call printf
     j done
 
 print_no:
     la a0, no_str
-    call puts
+    call printf
+
 
 done:
     # restore registers and return
@@ -89,3 +91,9 @@ done:
     addi sp, sp, 48
     li a0, 0
     ret
+
+error:
+    la a0, error_str
+    call printf
+    j done
+
