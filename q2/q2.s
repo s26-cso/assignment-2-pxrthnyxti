@@ -1,7 +1,7 @@
 .data
     format_str:  .string "%d "   
-    newline_str: .string "\n"    
-
+    format_last: .string "%d"    
+    newline_str: .string "\n"
 .text
 .globl main
 main:
@@ -29,7 +29,7 @@ addi s4, s4 ,4
 getting_values:
     bge s2 , s0 , main_logic
 
-    slli  t0 , s2 , 3 # now what this does is multiplies the index by 3 and stores it in t0
+    slli  t0 , s2 , 3 # now what this does is multiplies the index by 8 and stores it in t0
     add t0 , s1 , t0 # now t0 hold the pointer to the string
     ld a0 , 0(t0)
     call atoi   # now a0 will hold the value
@@ -113,18 +113,27 @@ print_loop:
     add t0, s5, t0         # Add base address of Ans array (s5)
     lw a1, 0(t0)           # a1 = ans[index]
 
-    # 2. Load the format string into a0 (printf's 1st argument)
-    la a0, format_str      # 'la' stands for Load Address
-    
-    # 3. Call printf
+    # 2. Check if this is the last element
+    beq s2, s0, print_last
+
+    # 3a. Load the standard format string (with space)
+    la a0, format_str      
+    j do_print
+
+print_last:
+    # 3b. Load the format string WITHOUT a space for the final element
+    la a0, format_last
+
+do_print:
+    # 4. Call printf
     call printf
 
-    # 4. Increment and loop
+    # 5. Increment and loop
     addi s2, s2, 1         # index++
     j print_loop
 
 print_done:
-    # Optional: Print a newline at the very end to make the terminal look clean
+    # Print a newline at the very end to make the terminal look clean
     la a0, newline_str
     call printf
 
